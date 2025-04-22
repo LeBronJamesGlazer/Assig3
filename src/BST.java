@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 public class BST<K extends Comparable<K>, V> implements Iterable<KeyValuePair<K, V>> {
     private Node root;
@@ -21,39 +22,51 @@ public class BST<K extends Comparable<K>, V> implements Iterable<KeyValuePair<K,
     }
 
     private Node put(Node node, K key, V val) {
-        if (node == null) {
-            size++;
-            return new Node(key, val);
+        Node current = node;
+        Node parent = null;
+
+        while (current != null) {
+            parent = current;
+            int cmp = key.compareTo(current.key);
+            if (cmp < 0) {
+                current = current.left;
+            } else if (cmp > 0) {
+                current = current.right;
+            } else {
+                current.val = val;
+                return node; // Key already exists, update value
+            }
         }
 
-        int cmp = key.compareTo(node.key);
-        if (cmp < 0) {
-            node.left = put(node.left, key, val);
-        } else if (cmp > 0) {
-            node.right = put(node.right, key, val);
-        } else {
-            node.val = val;
+        // If node is null, create a new node and attach to parent
+        Node newNode = new Node(key, val);
+        if (parent == null) {
+            return newNode; // Tree is empty, return the new node
         }
+
+        int cmp = key.compareTo(parent.key);
+        if (cmp < 0) {
+            parent.left = newNode;
+        } else {
+            parent.right = newNode;
+        }
+        size++;
         return node;
     }
 
     public V get(K key) {
-        Node node = get(this.root, key);
-        return node == null ? null : node.val;
-    }
-
-    private Node get(Node node, K key) {
-        if (node == null) {
-            return null;
+        Node current = root;
+        while (current != null) {
+            int cmp = key.compareTo(current.key);
+            if (cmp < 0) {
+                current = current.left;
+            } else if (cmp > 0) {
+                current = current.right;
+            } else {
+                return current.val; // Key found
+            }
         }
-        int cmp = key.compareTo(node.key);
-        if (cmp < 0) {
-            return get(node.left, key);
-        } else if (cmp > 0) {
-            return get(node.right, key);
-        } else {
-            return node;
-        }
+        return null; // Key not found
     }
 
     public void delete(K key) {
@@ -61,42 +74,68 @@ public class BST<K extends Comparable<K>, V> implements Iterable<KeyValuePair<K,
     }
 
     private Node delete(Node node, K key) {
-        if (node == null) {
-            return null;
-        }
-        int cmp = key.compareTo(node.key);
-        if (cmp < 0) {
-            node.left = delete(node.left, key);
-        } else if (cmp > 0) {
-            node.right = delete(node.right, key);
-        } else {
-            if (node.left == null) {
-                return node.right;
-            }
-            if (node.right == null) {
-                return node.left;
-            }
-            Node t = node;
-            node = min(t.right);
-            node.right = deleteMin(t.right);
-            node.left = t.left;
-        }
-        return node;
-    }
+        Node current = node;
+        Node parent = null;
 
-    private Node deleteMin(Node node) {
-        if (node.left == null) {
-            return node.right;
+        // Find the node to be deleted
+        while (current != null) {
+            int cmp = key.compareTo(current.key);
+            if (cmp < 0) {
+                parent = current;
+                current = current.left;
+            } else if (cmp > 0) {
+                parent = current;
+                current = current.right;
+            } else {
+                break; // Key found
+            }
         }
-        node.left = deleteMin(node.left);
-        return node;
-    }
 
-    private Node min(Node node) {
-        if (node.left == null) {
-            return node;
+        if (current == null) {
+            return node; // Key not found
         }
-        return min(node.left);
+
+        // Case 1
+        if (current.left == null) {
+            if (parent == null) {
+                return current.right; // Node is root
+            } else if (parent.left == current) {
+                parent.left = current.right;
+            } else {
+                parent.right = current.right;
+            }
+        }
+        // Case 2
+        else if (current.right == null) {
+            if (parent == null) {
+                return current.left; // Node is root
+            } else if (parent.left == current) {
+                parent.left = current.left;
+            } else {
+                parent.right = current.left;
+            }
+        }
+        // Case 3
+        else {
+            Node successorParent = current;
+            Node successor = current.right;
+            while (successor.left != null) {
+                successorParent = successor;
+                successor = successor.left;
+            }
+
+            current.key = successor.key;
+            current.val = successor.val;
+
+            if (successorParent.left == successor) {
+                successorParent.left = successor.right;
+            } else {
+                successorParent.right = successor.right;
+            }
+        }
+
+        size--;
+        return node;
     }
 
     public int getSize() {
@@ -110,13 +149,22 @@ public class BST<K extends Comparable<K>, V> implements Iterable<KeyValuePair<K,
         return list.iterator();
     }
 
+    // Iterative inorder traversal using a stack
     private void inorder(Node node, List<KeyValuePair<K, V>> list) {
-        if (node == null) {
-            return;
+        Stack<Node> stack = new Stack<>();
+        Node current = node;
+
+        while (current != null || !stack.isEmpty()) {
+            while (current != null) {
+                stack.push(current);
+                current = current.left;
+            }
+
+            current = stack.pop();
+            list.add(new KeyValuePair<>(current.key, current.val));
+
+            current = current.right;
         }
-        inorder(node.left, list);
-        list.add(new KeyValuePair<>(node.key, node.val));
-        inorder(node.right, list);
     }
 }
 
