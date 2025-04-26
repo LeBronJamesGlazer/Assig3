@@ -1,11 +1,10 @@
+// Binary Search Tree implementation with put, get, delete, and inorder traversal functionality
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
 public class BST<K extends Comparable<K>, V> implements Iterable<KeyValuePair<K, V>> {
-    private Node root;
-    private int size;
-
+    // Node class to store key-value pairs and left/right children
     private class Node {
         private K key;
         private V val;
@@ -17,10 +16,15 @@ public class BST<K extends Comparable<K>, V> implements Iterable<KeyValuePair<K,
         }
     }
 
+    private Node root;
+    private int size;
+
+    // Public method to insert a key-value pair into the BST
     public void put(K key, V val) {
         root = put(root, key, val);
     }
 
+    // Internal method to insert a key-value pair using iterative approach
     private Node put(Node node, K key, V val) {
         Node current = node;
         Node parent = null;
@@ -54,6 +58,7 @@ public class BST<K extends Comparable<K>, V> implements Iterable<KeyValuePair<K,
         return node;
     }
 
+    // Searches for a key and returns the associated value if found
     public V get(K key) {
         Node current = root;
         while (current != null) {
@@ -69,10 +74,12 @@ public class BST<K extends Comparable<K>, V> implements Iterable<KeyValuePair<K,
         return null; // Key not found
     }
 
+    // Public method to delete a node by key
     public void delete(K key) {
         root = delete(root, key);
     }
 
+    // Internal method to handle deletion with three standard BST cases
     private Node delete(Node node, K key) {
         Node current = node;
         Node parent = null;
@@ -138,10 +145,12 @@ public class BST<K extends Comparable<K>, V> implements Iterable<KeyValuePair<K,
         return node;
     }
 
+    // Returns the number of nodes in the BST
     public int getSize() {
         return size;
     }
 
+    // Returns an iterator to traverse the BST in inorder
     @Override
     public java.util.Iterator<KeyValuePair<K, V>> iterator() {
         List<KeyValuePair<K, V>> list = new ArrayList<>();
@@ -149,7 +158,7 @@ public class BST<K extends Comparable<K>, V> implements Iterable<KeyValuePair<K,
         return list.iterator();
     }
 
-    // Iterative inorder traversal using a stack
+    // Iterative inorder traversal using a stack, populates a list of key-value pairs
     private void inorder(Node node, List<KeyValuePair<K, V>> list) {
         Stack<Node> stack = new Stack<>();
         Node current = node;
@@ -168,6 +177,7 @@ public class BST<K extends Comparable<K>, V> implements Iterable<KeyValuePair<K,
     }
 }
 
+// Helper class to store a key-value pair, used in traversal output
 class KeyValuePair<K, V> {
     private K key;
     private V value;
@@ -177,10 +187,12 @@ class KeyValuePair<K, V> {
         this.value = value;
     }
 
+    // Returns the key
     public K getKey() {
         return key;
     }
 
+    // Returns the value
     public V getValue() {
         return value;
     }

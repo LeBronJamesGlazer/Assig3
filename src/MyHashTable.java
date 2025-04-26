@@ -1,4 +1,5 @@
 public class MyHashTable<K, V> {
+    // Node class to store key-value pairs and handle collisions via chaining
     private class HashNode<K, V> {
         private K key;
         private V value;
@@ -32,9 +33,11 @@ public class MyHashTable<K, V> {
         this.size = 0;
     }
 
+    // Hash function to compute index for a given key
     private int hash(K key) {
         return Math.abs(key.hashCode()) % M;
     }
+    // Adds a key-value pair to the hash table or updates it if the key exists
     public void put(K key, V value) {
         int hash = hash(key);
         HashNode<K, V> newnode = new HashNode<>(key, value);
@@ -51,6 +54,7 @@ public class MyHashTable<K, V> {
         size++;
 
     }
+    // Retrieves the value associated with the given key
     public V get(K key) {
         int hash = hash(key);
         HashNode<K, V> head = chainArray[hash];
@@ -61,6 +65,7 @@ public class MyHashTable<K, V> {
         }
         return null;
     }
+    // Removes the key-value pair associated with the given key
     public V remove(K key) {
         int hash = hash(key);
         HashNode<K, V> head = chainArray[hash];
@@ -81,12 +86,15 @@ public class MyHashTable<K, V> {
         }
         return null;
     }
+    // Returns the current number of key-value pairs in the hash table
     public int size() {
         return size;
     }
+    // Checks if the hash table contains the specified value
     public boolean contains(V value) {
         return getKey(value) != null;
     }
+    // Returns the key associated with a given value, or null if not found
     public K getKey(V value) {
         for (int i = 0; i < M; i++) {
             HashNode<K, V> current = chainArray[i];
@@ -99,6 +107,7 @@ public class MyHashTable<K, V> {
         }
         return null;
     }
+    // Prints the number of elements in each bucket (chain)
     public void printBuckets() {
         for (int i = 0; i < M; i++) {
             int count = 0;
